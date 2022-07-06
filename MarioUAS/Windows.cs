@@ -11,7 +11,6 @@ using OpenTK.Graphics.OpenGL4;
 using System.Drawing;
 using System.Drawing.Imaging;
 using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
-//using Pertemuan7;
 
 namespace MarioUAS
 {
@@ -33,80 +32,82 @@ namespace MarioUAS
         private bool _firstMove;
         private bool postprocessing = false;
 
-        //Light
+        // Light
         List<Light> lights = new List<Light>();
 
-        //Frame Buffers
+        // Frame Buffers
         int fbo;
 
-        //Shader
+        // Shader
         Shader shader;
         Shader screenShader;
         Shader skyboxShader;
 
-        //Quad Screen
+        // Quad Screen
         float[] quadVertices = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-        // positions   // texCoords
-        -1.0f,  1.0f,  0.0f, 1.0f,
-        -1.0f, -1.0f,  0.0f, 0.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
+            // positions   // texCoords
+            -1.0f,  1.0f,  0.0f, 1.0f,
+            -1.0f, -1.0f,  0.0f, 0.0f,
+             1.0f, -1.0f,  1.0f, 0.0f,
 
-        -1.0f,  1.0f,  0.0f, 1.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
-         1.0f,  1.0f,  1.0f, 1.0f
+            -1.0f,  1.0f,  0.0f, 1.0f,
+             1.0f, -1.0f,  1.0f, 0.0f,
+             1.0f,  1.0f,  1.0f, 1.0f
         };
+
         int _vao;
         int _vbo;
         int texColorBuffer;
 
-        //Cubemap
+        // Cubemap
         int cubemap;
         int _vao_cube;
         int _vbo_cube;
+
         float[] skyboxVertices = {
-        // positions          
-        -1.0f,  1.0f, -1.0f,
-        -1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
+            // positions          
+            -1.0f,  1.0f, -1.0f,
+            -1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+             1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
 
-        -1.0f, -1.0f,  1.0f,
-        -1.0f, -1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f,
+            -1.0f, -1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f,
 
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
 
-        -1.0f, -1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f, -1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f,
+            -1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f, -1.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f,
 
-        -1.0f,  1.0f, -1.0f,
-         1.0f,  1.0f, -1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+             1.0f,  1.0f, -1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+            -1.0f,  1.0f,  1.0f,
+            -1.0f,  1.0f, -1.0f,
 
-        -1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f,  1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f,  1.0f,
-         1.0f, -1.0f,  1.0f
-    };
+            -1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f,  1.0f,
+             1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f,  1.0f,
+             1.0f, -1.0f,  1.0f
+        };
 
         public Windows(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
@@ -137,40 +138,38 @@ namespace MarioUAS
             GL.ClearColor(1f, 1f, 1f, 1.0f);
             GL.Enable(EnableCap.DepthTest);
 
-            //Shader
-            shader = new Shader("../../../Shaders/shader.vert",
-                "../../../Shaders/lighting.frag");
+            // Shader
+            shader = new Shader("../../../Shaders/shader.vert", "../../../Shaders/lighting.frag");
             shader.Use();
 
-            //Screen Shader
-            screenShader = new Shader("../../../Shaders/PostProcessing.vert",
-                "../../../Shaders/PostProcessing.frag");
+            // Screen Shader
+            screenShader = new Shader("../../../Shaders/PostProcessing.vert",  "../../../Shaders/PostProcessing.frag");
             screenShader.Use();
             screenShader.SetInt("screenTexture", 0);
-            //Frame Buffers
+
+            // Frame Buffers
             GL.GenFramebuffers(1, out fbo);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
 
-            //Add Texture to Frame Buffer
-            GL.GenTextures(1, out texColorBuffer);
+            // Add Texture to Frame Buffer
             Console.WriteLine("TexColorBuffer: " + texColorBuffer);
+            GL.GenTextures(1, out texColorBuffer);
             GL.BindTexture(TextureTarget.Texture2D, texColorBuffer);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, 800, 600, 0, PixelFormat.Rgb, PixelType.Float, IntPtr.Zero);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D
-                , texColorBuffer, 0);
-            //Render Buffer
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, texColorBuffer, 0);
+            
+            // Render Buffer
             int rbo;
             GL.GenRenderbuffers(1, out rbo);
             GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, rbo);
             GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, 800, 600);
+            
             GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
-
-            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment,
-                RenderbufferTarget.Renderbuffer, rbo);
+            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, RenderbufferTarget.Renderbuffer, rbo);
 
             if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) == FramebufferErrorCode.FramebufferComplete)
             {
@@ -181,21 +180,21 @@ namespace MarioUAS
                 Console.WriteLine("Screen Frame Buffer NOT complete");
             }
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            //Initialize default material
+            
+            // Initialize default material
             InitDefaultMaterial();
-            //Create Cube Map
-            //CreateCubeMap();
-            skyboxShader = new Shader("../../../Shaders/skybox.vert",
-                "../../../Shaders/skybox.frag");
+            
+            // Create Cube Map
+            CreateCubeMap();
+            skyboxShader = new Shader("../../../Shaders/skybox.vert", "../../../Shaders/skybox.frag");
 
-            //Vertices
-            //Inisialiasi VBO
+            // Vertices
+            // Inisialiasi VBO
             _vbo_cube = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo_cube);
-            GL.BufferData(BufferTarget.ArrayBuffer, skyboxVertices.Length * sizeof(float),
-                skyboxVertices, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, skyboxVertices.Length * sizeof(float), skyboxVertices, BufferUsageHint.StaticDraw);
 
-            //Inisialisasi VAO
+            // Inisialisasi VAO
             _vao_cube = GL.GenVertexArray();
             GL.BindVertexArray(_vao_cube);
             var vertexLocation = skyboxShader.GetAttribLocation("aPosition");
@@ -204,80 +203,68 @@ namespace MarioUAS
 
             skyboxShader.Use();
             skyboxShader.SetInt("skybox", 4);
-            //Screen Quad
+
+            // Screen Quad
             GL.GenVertexArrays(1, out _vao);
             GL.GenBuffers(1, out _vbo);
             GL.BindVertexArray(_vbo);
             GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
             GL.BufferData(BufferTarget.ArrayBuffer, quadVertices.Length * sizeof(float), quadVertices, BufferUsageHint.StaticDraw);
+            
             GL.EnableVertexAttribArray(0);
             GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 0);
+            
             GL.EnableVertexAttribArray(1);
             GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 2 * sizeof(float));
 
-            //Light Position
-            lights.Add(new PointLight(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.05f, 0.05f, 0.05f),
-                new Vector3(1.0f, 1.0f, 1.0f), new Vector3(1.0f, 1.0f, 1.0f), 0.5f, 0.5f, 0.5f));
-            lights.Add(new PointLight(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.05f, 0.05f, 0.05f),
-                new Vector3(0.0f, 1.0f, 0.0f), new Vector3(0.0f, 1.0f, 0.0f), 0.5f, 0.5f, 0.5f));
-            lights.Add(new PointLight(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.05f, 0.05f, 0.05f),
-                new Vector3(0.0f, 0.0f, 1.0f), new Vector3(0.0f, 0.0f, 1.0f), 0.5f, 0.5f, 0.5f));
-            lights.Add(new DirectionLight(new Vector3(0.5f, 0.5f, 0.5f), new Vector3(0.05f, 0.05f, 0.05f),
-                new Vector3(1.0f, 1.0f, 1.0f), new Vector3(0.0f, 1.0f, 1.0f), new Vector3(1f, 1f, 1f)));
+            // Light Position
+            lights.Add(new DirectionLight(new Vector3(3.2f, 4.1f, 1.2f), new Vector3(0.05f, 0.05f, 0.05f),
+                new Vector3(1f, 1f, 1f), new Vector3(0.5f, 0.5f, 0.5f), new Vector3(-0.2f, -1.0f, -0.3f)));
+            lights.Add(new PointLight(new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0.01f, 0.01f, 0.01f),
+                new Vector3(1.0f, 0.7f, 0.4f), new Vector3(0.0f, 0.0f, 0.0f), 0.5f, 0.5f, 1.0f));
+           
 
-            //Initialize Mesh here
-            //mesh0 = LoadObjFile("../../../Resources/MeteorInverted.obj");
-            //mesh0.setupObject(1.0f, 1.0f);
-            //mesh0.scale(5f);
+            // Initialize Mesh here
+            mesh0 = LoadObjFile("../../../Resources/Mario.obj");
+            mesh0.setupObject(1.0f, 1.0f);
+            mesh0.translate(new Vector3(0f, -0.2f, -0.01f));
 
+            mesh1 = LoadObjFile("../../../Resources/Peach.obj");
+            mesh1.setupObject(1.0f, 1.0f);
+            mesh1.translate(new Vector3(0f, -0.2f, 0f));
 
-            //mesh1 = LoadObjFile("../../../Resources/meguminfinal.obj");
-            //mesh1.setupObject(1.0f, 1.0f);
-            //mesh1.translate(new Vector3(0f, 0f, 0f));
-            //mesh1.scale(2f);
-
-            mesh2 = LoadObjFile("../../../Resources/scene.obj");
+            mesh2 = LoadObjFile("../../../Resources/castle.obj");
             mesh2.setupObject(1.0f, 1.0f);
-            mesh2.rotate(0f, 180f, 0f);
             mesh2.translate(new Vector3(0f, -0.2f, 0f));
-            //mesh2.scale(1f);
 
+            mesh3 = LoadObjFile("../../../Resources/goomba.obj");
+            mesh3.setupObject(1.0f, 1.0f);
+            mesh3.translate(new Vector3(-0.27f, 0.01f, 0.1f));
+            mesh3.scale(2f);
 
-            //mesh3 = LoadObjFile("../../../Resources/dodocoSmall.obj");
-            //mesh3.setupObject(1.0f, 1.0f);
-            //mesh3.rotate(0f, 45f, 0f);
-            //mesh3.translate(new Vector3(-0.5f, 0f, 0f));
-            //mesh3.scale(3f);
+            mesh4 = LoadObjFile("../../../Resources/campfire.obj");
+            mesh4.setupObject(1.0f, 1.0f);
+            mesh4.translate(new Vector3(0.0f, -0.05f, 0f));
+            mesh4.scale(3f);
 
-            //mesh4 = LoadObjFile("../../../Resources/dodocoTail.obj");
-            //mesh4.setupObject(1.0f, 1.0f);
-            //mesh4.translate(new Vector3(0.5f, 0f, 0f));
-            //mesh4.scale(2f);
-
-            mesh5 = LoadObjFile("../../../Resources/uastoad2.obj");
+            mesh5 = LoadObjFile("../../../Resources/uastoad.obj");
             mesh5.setupObject(1.0f, 1.0f);
-            mesh5.scale(0.01f);
+            mesh5.scale(2f);
             mesh5.rotate(0f, 180f, 0f);
-            mesh5.translate(new Vector3(0f, 0f, 3f));
+            mesh5.translate(new Vector3(-0.23f, -0.177f, 1.5f));
             _objectPos = mesh5.getTransform().ExtractTranslation();
-
-            //lights[0].Position = new Vector3(-0.2f, 0.3f, 0.3f);
-            lights[0].Position = new Vector3(0.0f, 1.5f, -0.3f);
-            lights[1].Position = new Vector3(0.0f, 3f, -1.0f);
-            lights[2].Position = new Vector3(0.0f, 0.5f, 2.0f);
-
 
             var _cameraPosInit = new Vector3(0, 0.5f, 3f);
             _camera = new Camera(_cameraPosInit, Size.X / (float)Size.Y);
             _camera.Fov = 90f;
             _camera.Yaw -= 90f;
             CursorGrabbed = true;
+
             base.OnLoad();
         }
 
         protected override void OnRenderFrame(FrameEventArgs args)
         {
-            
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             if (GLFW.GetTime() > 0.02)
             {
@@ -291,28 +278,31 @@ namespace MarioUAS
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbo);
                 GL.Enable(EnableCap.DepthTest);
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-                //Textured Rendering
+
+                // Textured Rendering
                 GL.ActiveTexture(TextureUnit.Texture0);
+
                 shader.Use();
                 for (int i = 0; i < lights.Count; i++)
                 {
-                    //mesh0.calculateTextureRender(_camera, lights[i], i);
-                    //mesh1.calculateTextureRender(_camera, lights[i], i);
+                    mesh0.calculateTextureRender(_camera, lights[i], i);
+                    mesh1.calculateTextureRender(_camera, lights[i], i);
                     mesh2.calculateTextureRender(_camera, lights[i], i);
-                    //mesh3.calculateTextureRender(_camera, lights[i], i);
-                    //mesh4.calculateTextureRender(_camera, lights[i], i);
+                    mesh3.calculateTextureRender(_camera, lights[i], i);
+                    mesh4.calculateTextureRender(_camera, lights[i], i);
                     mesh5.calculateTextureRender(_camera, lights[i], i);
                 }
 
                 GL.BindVertexArray(0);
 
-                //Default FrameBuffer
+                // Default FrameBuffer
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
                 GL.Disable(EnableCap.DepthTest);
                 GL.Clear(ClearBufferMask.ColorBufferBit);
 
                 screenShader.Use();
                 screenShader.SetInt("screenTexture", texColorBuffer);
+
                 GL.BindVertexArray(_vao);
                 GL.BindTexture(TextureTarget.Texture2D, texColorBuffer);
                 GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
@@ -322,36 +312,38 @@ namespace MarioUAS
                 shader.Use();
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
                 GL.Enable(EnableCap.DepthTest);
-                //GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-                //Textured Rendering
+                
+                // Textured Rendering
                 GL.ActiveTexture(TextureUnit.Texture0);
+
                 for (int i = 0; i < lights.Count; i++)
                 {
-                    //mesh0.calculateTextureRender(_camera, lights[i], i);
-                    //mesh1.calculateTextureRender(_camera, lights[i], i);
+                    mesh0.calculateTextureRender(_camera, lights[i], i);
+                    mesh1.calculateTextureRender(_camera, lights[i], i);
                     mesh2.calculateTextureRender(_camera, lights[i], i);
-                    //mesh3.calculateTextureRender(_camera, lights[i], i);
-                    //mesh4.calculateTextureRender(_camera, lights[i], i);
+                    mesh3.calculateTextureRender(_camera, lights[i], i);
+                    mesh4.calculateTextureRender(_camera, lights[i], i);
                     mesh5.calculateTextureRender(_camera, lights[i], i);
                 }
 
-                //Render Skybox
+                // Render Skybox
                 GL.DepthFunc(DepthFunction.Lequal);
-                //GL.DepthMask(false);
+                // GL.DepthMask(false);
                 skyboxShader.Use();
                 Matrix4 skyview = _camera.GetViewMatrix().ClearTranslation().ClearScale();
                 skyboxShader.SetMatrix4("view", skyview);
                 
                 Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(_camera.Fov),
                     Size.X / (float)Size.Y, 1f, 100f);
+
                 skyboxShader.SetMatrix4("projection", projection);
                 skyboxShader.SetInt("skybox", 4);
+
                 GL.BindVertexArray(_vao_cube);
                 GL.ActiveTexture(TextureUnit.Texture4);
                 GL.BindTexture(TextureTarget.TextureCubeMap, cubemap);
                 GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
                 GL.DepthFunc(DepthFunction.Less);
-
             }
 
             SwapBuffers();
@@ -361,121 +353,142 @@ namespace MarioUAS
 
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
-            //Console.WriteLine("Camera Position" + _camera.Position + " Object Position: " + _objectPos);
+            //Console.WriteLine(_camera.Position);
+
             const float cameraSpeed = 0.5f;
+
+            Vector3 vec = mesh5.getTransform().ExtractTranslation();
+            Vector3 vec2 = mesh0.getTransform().ExtractTranslation();
+            Vector3 vec3 = mesh1.getTransform().ExtractTranslation();
+            Vector3 vec4 = mesh3.getTransform().ExtractTranslation();
+            Vector3 vec5 = mesh4.getTransform().ExtractTranslation();
+
+            float x = Math.Abs(vec.X - _camera.Position.X);
+            float y = Math.Abs(vec.Y - _camera.Position.Y);
+            float z = Math.Abs(vec.Z - _camera.Position.Z);
+
+            float x2 = Math.Abs(vec2.X - _camera.Position.X);
+            float y2 = Math.Abs(vec2.Y - _camera.Position.Y);
+            float z2 = Math.Abs(vec2.Z - _camera.Position.Z);
+
+            float x3 = Math.Abs(vec3.X - _camera.Position.X);
+            float y3 = Math.Abs(vec3.Y - _camera.Position.Y);
+            float z3 = Math.Abs(vec3.Z - _camera.Position.Z);
+
+            float x4 = Math.Abs(vec4.X - _camera.Position.X);
+            float y4 = Math.Abs(vec4.Y - _camera.Position.Y);
+            float z4 = Math.Abs(vec4.Z - _camera.Position.Z);
+
+            float x5 = Math.Abs(vec5.X - _camera.Position.X);
+            float y5 = Math.Abs(vec5.Y - _camera.Position.Y);
+            float z5 = Math.Abs(vec5.Z - _camera.Position.Z);
+
+            bool hit = false;
+
             // Escape keyboard
             if (KeyboardState.IsKeyDown(Keys.Escape))
             {
                 Close();
             }
+
             // Zoom in
             if (KeyboardState.IsKeyDown(Keys.I))
             {
                 _camera.Fov -= 0.5f;
             }
+
             // Zoom out
             if (KeyboardState.IsKeyDown(Keys.O))
             {
                 _camera.Fov += 0.5f;
             }
 
-            // Rotasi X di pivot Camera
-            // Lihat ke atas (T)
-            if (KeyboardState.IsKeyDown(Keys.T))
-            {
-                _camera.Pitch += 0.05f;
-            }
-            // Lihat ke bawah (G)
-            if (KeyboardState.IsKeyDown(Keys.G))
-            {
-                _camera.Pitch -= 0.05f;
-            }
-            // Rotasi Y di pivot Camera
-            // Lihat ke kiri (F)
-            if (KeyboardState.IsKeyDown(Keys.F))
-            {
-                _camera.Yaw -= 0.05f;
-            }
-            // Lihat ke kanan (H)
-            if (KeyboardState.IsKeyDown(Keys.H))
-            {
-                _camera.Yaw += 0.05f;
-            }
 
-            // Maju (W)
             if (KeyboardState.IsKeyDown(Keys.W))
             {
-                //_camera.Position += _camera.Front * cameraSpeed * (float)args.Time;
-                //_objectPos += _camera.Position;
-                mesh5.translate(new Vector3(0, 0, -1) * cameraSpeed * (float)args.Time);
-                Vector3 vec = mesh5.getTransform().ExtractTranslation();
-                _camera.Position = new Vector3(vec.X, vec.Y + 0.5f, vec.Z + 0.5f);
+                // === COLLISION ===
+                // Toad
+                if (x <= 0.2 && y <= 0.35 && z <= 0.2)
+                {
+                    hit = true;
+                }
+                // Mario
+                if ((x2 <= 0.91 && y2 <= 0.6 && z2 <= 0.8 && (_camera.Position.Z < -0.7 && _camera.Position.Z > -0.88 && ((_camera.Position.X < 0.34 && _camera.Position.X > 0.2) || (_camera.Position.X > 0.65 && _camera.Position.X < 0.95)))) || (x2 <= 0.96 && y2 <= 0.6 && z2 <= 1.3 && (_camera.Position.Z < -0.881 && _camera.Position.Z > -2 && _camera.Position.X > 0.34)))
+                {
+                    hit = true;
+                }
+                // Peach
+                if ((x3 <= 0.32 && y3 <= 0.6 && z3 <= 0.035) || (x3 <= 0.32 && y3 <= 0.45 && z3 <= 0.47 && (_camera.Position.Z < -0.2 && _camera.Position.Z > -0.55)))
+                {
+                    hit = true;
+                }
+                // Goomba
+                if (x4 <= 0.2 && y4 <= 0.3 && z4 <= 0.2)
+                {
+                    hit = true;
+                }
+                // Campfire
+                if (x5 <= 0.19 && y5 <= 0.1 && z5 <= 0.15)
+                {
+                    hit = true;
+                }
+                // Tembok depan
+                if ((_camera.Position.X >= 0.03 && _camera.Position.X <= 0.89) && (_camera.Position.Z >= 0.55 && _camera.Position.Z <= 1.12) && (_camera.Position.Y >= 0.05 && _camera.Position.Y <= 0.51))
+                {
+                    hit = true;
+                }
+                // Tembok kanan
+                if ((_camera.Position.X >= 0.79 && _camera.Position.X <= 1.13) && (_camera.Position.Z >= -1.173 && _camera.Position.Z <= 1.01) && (_camera.Position.Y >= -0.023 && _camera.Position.Y <= 0.87))
+                {
+                    hit = true;
+                }
+                // Tembok kiri
+                if ((_camera.Position.X >= -1.2 && _camera.Position.X <= -0.76) && (_camera.Position.Z >= -1.16 && _camera.Position.Z <= 0.7) && (_camera.Position.Y >= -0.12 && _camera.Position.Y <= 0.52))
+                {
+                    hit = true;
+                }
+                // Tembok belakang
+                if ((_camera.Position.X >= -0.66 && _camera.Position.X <= 0.74) && (_camera.Position.Z >= -1.49 && _camera.Position.Z <= -1.27) && (_camera.Position.Y >= -0.09 && _camera.Position.Y <= 0.89))
+                {
+                    hit = true;
+                }
+                if (!hit)
+                {
+                    _camera.Position += _camera.Front * cameraSpeed * (float)args.Time;
+
+                }
 
             }
-            // Mundur (S)
             if (KeyboardState.IsKeyDown(Keys.S))
             {
-                //_camera.Position -= _camera.Front * cameraSpeed * (float)args.Time;
-                //_objectPos += _camera.Position;
-                mesh5.translate(-(new Vector3(0, 0, -1) * cameraSpeed * (float)args.Time));
-                Vector3 vec = mesh5.getTransform().ExtractTranslation();
-                _camera.Position = new Vector3(vec.X, vec.Y + 0.5f, vec.Z + 0.5f);
+                hit = false;
+                _camera.Position -= _camera.Front * cameraSpeed * (float)args.Time;
             }
-            // Kiri (A)
             if (KeyboardState.IsKeyDown(Keys.A))
             {
-                //_camera.Position -= new Vector3(1, 0, 0) * cameraSpeed * (float)args.Time;
-                //_objectPos += _camera.Position;
-                mesh5.translate(-(new Vector3(1, 0, 0) * cameraSpeed * (float)args.Time));
-                Vector3 vec = mesh5.getTransform().ExtractTranslation();
-                _camera.Position = new Vector3(vec.X, vec.Y + 0.5f, vec.Z + 0.5f);
+                hit = false;
+                _camera.Position -= _camera.Right * cameraSpeed * (float)args.Time;
             }
-            // Kanan (D)
             if (KeyboardState.IsKeyDown(Keys.D))
             {
-                //_camera.Position += new Vector3(1, 0, 0) * cameraSpeed * (float)args.Time;
-                //_objectPos += _camera.Position;
-                mesh5.translate((new Vector3(1, 0, 0) * cameraSpeed * (float)args.Time));
-                Vector3 vec = mesh5.getTransform().ExtractTranslation();
-                _camera.Position = new Vector3(vec.X, vec.Y + 0.5f, vec.Z + 0.5f);
-
+                hit = false;
+                _camera.Position += _camera.Right * cameraSpeed * (float)args.Time;
             }
+
             // Naik (Spasi)
             if (KeyboardState.IsKeyDown(Keys.Space))
             {
                 _camera.Position += _camera.Up * cameraSpeed * (float)args.Time;
             }
+
             // Turun (Ctrl)
             if (KeyboardState.IsKeyDown(Keys.LeftControl))
             {
                 _camera.Position -= _camera.Up * cameraSpeed * (float)args.Time;
             }
-            // Blinn
-            if(KeyboardState.IsKeyReleased(Keys.F1))
-            {
-                mesh0.setBlinn(!mesh0.getBlinn());
-                mesh1.setBlinn(!mesh1.getBlinn());
-                mesh2.setBlinn(!mesh2.getBlinn());
-                mesh3.setBlinn(!mesh3.getBlinn());
-                mesh4.setBlinn(!mesh4.getBlinn());
-                mesh5.setBlinn(!mesh5.getBlinn());
-
-            }
-            if(KeyboardState.IsKeyReleased(Keys.F2))
-            {
-                mesh0.setGamma(!mesh0.getGamma());
-                mesh1.setGamma(!mesh1.getGamma());
-                mesh2.setGamma(!mesh2.getGamma());
-                mesh3.setGamma(!mesh3.getGamma());
-                mesh4.setGamma(!mesh4.getGamma());
-                mesh5.setGamma(!mesh5.getGamma());
-            }
-            if(KeyboardState.IsKeyReleased(Keys.F3))
-            {
-                postprocessing = !postprocessing;
-            }
 
             const float _rotationSpeed = 0.1f;
+
             // K (atas -> Rotasi sumbu x)
             if (KeyboardState.IsKeyDown(Keys.K))
             {
@@ -490,6 +503,7 @@ namespace MarioUAS
                 _camera._front = -Vector3.Normalize(_camera.Position - _objectPos);
                 _objectPos /= 2;
             }
+
             // M (bawah -> Rotasi sumbu x)
             if (KeyboardState.IsKeyDown(Keys.M))
             {
@@ -519,6 +533,7 @@ namespace MarioUAS
                 _camera._front = -Vector3.Normalize(_camera.Position - _objectPos);
                 _objectPos /= 2;
             }
+
             // , (kanan -> Rotasi sumbu y)
             if (KeyboardState.IsKeyDown(Keys.Comma))
             {
@@ -547,6 +562,7 @@ namespace MarioUAS
                 _camera._front = -Vector3.Normalize(_camera.Position - _objectPos);
                 _objectPos /= 2;
             }
+
             // L (putar -> Rotasi sumbu z)
             if (KeyboardState.IsKeyDown(Keys.L))
             {
@@ -579,32 +595,8 @@ namespace MarioUAS
                 var deltaY = MouseState.Y - _lastMousePosition.Y;
                 _lastMousePosition = new Vector2(MouseState.X, MouseState.Y);
 
-                
-                //YAW
-                _objectPos *= 2;
-                var axisYaw = new Vector3(0, 1, 0);
-                _camera.Position -= mesh5.getTransform().ExtractTranslation();
-                _camera.Yaw += deltaX * _rotationSpeed * sensitivity * 0.1f;
-                _camera.Position = Vector3.Transform(_camera.Position,
-                    generateArbRotationMatrix(axisYaw, mesh5.getTransform().ExtractTranslation(), deltaX).ExtractRotation());
-                _camera.Position += mesh5.getTransform().ExtractTranslation();
-
-                _camera._front = -Vector3.Normalize(_camera.Position - mesh5.getTransform().ExtractTranslation());
-                _objectPos /= 2;
-
-                //Pitch
-                _objectPos *= 2;
-                var axisPitch = new Vector3(1, 0, 0);
-                _camera.Position -= mesh5.getTransform().ExtractTranslation();
-                _camera.Pitch -= deltaY * _rotationSpeed * sensitivity * 0.1f;
-                _camera.Position = Vector3.Transform(_camera.Position,
-                    generateArbRotationMatrix(axisPitch, mesh5.getTransform().ExtractTranslation(), deltaY).ExtractRotation());
-                _camera.Position += mesh5.getTransform().ExtractTranslation();
-
-                _camera._front = -Vector3.Normalize(_camera.Position - mesh5.getTransform().ExtractTranslation());
-                _objectPos /= 2;
-                //_camera.Yaw += deltaX * sensitivity;
-                //_camera.Pitch -= deltaY * sensitivity;
+                _camera.Yaw += deltaX * sensitivity;
+                _camera.Pitch -= deltaY * sensitivity;
             }
 
             base.OnUpdateFrame(args);
@@ -620,23 +612,26 @@ namespace MarioUAS
                     1.0f, diffuseMap, textureMap, dmap));
 
             materials_dict.Add("Default", materials);
-            
         }
 
         public Mesh LoadObjFile(string path, bool usemtl = true)
         {
-            Mesh mesh = new Mesh("../../../Shaders/shader.vert",
-                "../../../Shaders/lighting.frag");
+            Mesh mesh = new Mesh("../../../Shaders/shader.vert", "../../../Shaders/lighting.frag");
+
             List<Vector3> temp_vertices = new List<Vector3>();
             List<Vector3> temp_normals = new List<Vector3>();
             List<Vector3> temp_textureVertices = new List<Vector3>();
+
             List<uint> temp_vertexIndices = new List<uint>();
             List<uint> temp_normalsIndices = new List<uint>();
             List<uint> temp_textureIndices = new List<uint>();
+
             List<string> temp_name = new List<string>();
-            List<String> temp_materialsName = new List<string>();
+            List<string> temp_materialsName = new List<string>();
+
             string current_materialsName = "";
             string material_library = "";
+
             int mesh_count = 0;
             int mesh_created = 0;
 
@@ -660,14 +655,16 @@ namespace MarioUAS
 
                     switch (type)
                     {
-                        //Render tergantung nama dan objek apa sehingga bisa buat hirarki
+                        // Render tergantung nama dan objek apa sehingga bisa buat hirarki
                         case "o":
                             if(mesh_count > 0)
                             {
                                 Mesh mesh_tmp = new Mesh();
-                                //Attach Shader
+
+                                // Attach Shader
                                 mesh_tmp.setShader(shader);
                                 mesh_tmp.setDepthShader(skyboxShader);
+
                                 for (int i = 0; i < temp_vertexIndices.Count; i++)
                                 {
                                     uint vertexIndex = temp_vertexIndices[i];
@@ -685,7 +682,7 @@ namespace MarioUAS
                                 }
                                 mesh_tmp.setName(temp_name[mesh_created]);
 
-                                //Material
+                                // Material
                                 if(usemtl)
                                 {
                                     
@@ -710,7 +707,6 @@ namespace MarioUAS
                                     }
                                 }
                                 
-                                
                                 if(mesh_count == 1)
                                 {
                                     mesh = mesh_tmp;
@@ -728,12 +724,9 @@ namespace MarioUAS
                         case "v":
                             temp_vertices.Add(new Vector3(float.Parse(words[0]) / 10, float.Parse(words[1]) / 10, float.Parse(words[2]) / 10));
                             break;
-
                         case "vt":
-                            temp_textureVertices.Add(new Vector3(float.Parse(words[0]), float.Parse(words[1]),
-                                                            words.Count < 3 ? 0 : float.Parse(words[2])));
+                            temp_textureVertices.Add(new Vector3(float.Parse(words[0]), float.Parse(words[1]), words.Count < 3 ? 0 : float.Parse(words[2])));
                             break;
-
                         case "vn":
                             temp_normals.Add(new Vector3(float.Parse(words[0]), float.Parse(words[1]), float.Parse(words[2])));
                             break;
@@ -746,14 +739,12 @@ namespace MarioUAS
                                 materials_dict.Add(nameWOExt, LoadMtlFile(resourceName));
                                 material_library = nameWOExt;
                             }
-                            
                             break;
                         case "usemtl":
                             if(usemtl)
                             {
                                 current_materialsName = words[0];
                             }
-
                             break;
                         // face
                         case "f":
@@ -790,22 +781,23 @@ namespace MarioUAS
 
                                     }
                                 }
-
                             }
                             break;
-
                         default:
                             break;
                     }
                 }
             }
+
             if (mesh_created < mesh_count)
             {
 
                 Mesh mesh_tmp = new Mesh();
-                //Attach Shader
+
+                // Attach Shader
                 mesh_tmp.setShader(shader);
                 mesh_tmp.setDepthShader(skyboxShader);
+
                 for (int i = 0; i < temp_vertexIndices.Count; i++)
                 {
                     uint vertexIndex = temp_vertexIndices[i];
@@ -823,7 +815,7 @@ namespace MarioUAS
                 }
                 mesh_tmp.setName(temp_name[mesh_created]);
 
-                //Material
+                // Material
                 if (usemtl)
                 {
 
@@ -848,7 +840,6 @@ namespace MarioUAS
                     }
                 }
 
-
                 if (mesh_count == 1)
                 {
                     mesh = mesh_tmp;
@@ -866,22 +857,27 @@ namespace MarioUAS
         {
             Console.WriteLine("Load MTL file");
             List <Material> materials = new List<Material>();
+
             List<string> name = new List<string>();
+
             List<float> shininess = new List<float>();
+
             List<Vector3> ambient = new List<Vector3>();
             List<Vector3> diffuse = new List<Vector3>();
             List<Vector3> specular = new List<Vector3>();
+
             List<float> alpha = new List<float>();
+
             List<string> map_kd = new List<string>();
             List<string> map_ka = new List<string>();
             List<string> map_d = new List<string>();
 
-            //komputer ngecek, apakah file bisa diopen atau tidak
+            // komputer ngecek, apakah file bisa diopen atau tidak
             if (!File.Exists(path))
             {
                 throw new FileNotFoundException("Unable to open \"" + path + "\", does not exist.");
             }
-            //lanjut ke sini
+            // lanjut ke sini
             using (StreamReader streamReader = new StreamReader(path))
             {
                 while (!streamReader.EndOfStream)
@@ -912,7 +908,7 @@ namespace MarioUAS
                             }
                             name.Add(words[0]);
                             break;
-                        //Shininess
+                        // Shininess
                         case "Ns":
                             shininess.Add(float.Parse(words[0]));
                             break;
@@ -993,7 +989,7 @@ namespace MarioUAS
             return materials;
         }
 
-        //CubeMap
+        // CubeMap
         public void CreateCubeMap()
         {
             string[] skyboxPath =
@@ -1007,6 +1003,7 @@ namespace MarioUAS
             };
             GL.GenTextures(1, out cubemap);
             GL.BindTexture(TextureTarget.TextureCubeMap, cubemap);
+
             Console.WriteLine("Cubemap: " + cubemap);
             for (int i = 0; i < skyboxPath.Length; i++)
             {
@@ -1034,11 +1031,9 @@ namespace MarioUAS
                 GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
                 GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
                 GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
-
             }
-            
-
         }
+
         //Animation
         public void LampRevolution()
         {

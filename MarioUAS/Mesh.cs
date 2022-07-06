@@ -24,14 +24,13 @@ namespace MarioUAS
 
         Shader _shader;
         Shader _depthShader;
-        //
+
         bool blinn = false;
         bool gamma = false;
         private Texture _diffuseMap;
         private Texture _specularMap;
 
-
-        //Hirarki pada parent
+        // Hirarki pada parent
         public List<Mesh> child = new List<Mesh>();
         public Mesh()
         {
@@ -41,27 +40,27 @@ namespace MarioUAS
         {
             _shader = new Shader(vertPath, fragPath);
         }
+
         public void setupObject(float sizeX, float sizeY)
         {
-            //Inisialisasi Transformasi
+            // Inisialisasi Transformasi
             transform = Matrix4.Identity;
 
-            //Vertices
-            //Inisialiasi VBO
+            // Vertices
+            // Inisialiasi VBO
             _vbo = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
-            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Count * Vector3.SizeInBytes,
-                vertices.ToArray(), BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Count * Vector3.SizeInBytes, vertices.ToArray(), BufferUsageHint.StaticDraw);
 
-            //Inisialisasi VAO
+            // Inisialisasi VAO
             _vao = GL.GenVertexArray();
             GL.BindVertexArray(_vao);
             var vertexLocation = _shader.GetAttribLocation("aPosition");
             GL.EnableVertexAttribArray(vertexLocation);
             GL.VertexAttribPointer(vertexLocation, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
 
-            //Normals
-            //Inisialiasi VBO
+            // Normals
+            // Inisialiasi VBO
             _vbo = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
             if(normals.Count < vertices.Count)
@@ -74,14 +73,13 @@ namespace MarioUAS
                 GL.BufferData(BufferTarget.ArrayBuffer, normals.Count * Vector3.SizeInBytes,
                 normals.ToArray(), BufferUsageHint.StaticDraw);
             }
-            
 
             var normalLocation = _shader.GetAttribLocation("aNormal");
             GL.EnableVertexAttribArray(normalLocation);
             GL.VertexAttribPointer(normalLocation, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
 
-            //Textures
-            //Inisialiasi VBO
+            // Textures
+            // Inisialiasi VBO
             _vbo = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
             if (textureVertices.Count < vertices.Count)
@@ -98,12 +96,9 @@ namespace MarioUAS
             GL.EnableVertexAttribArray(texCoordLocation);
             GL.VertexAttribPointer(texCoordLocation, 2, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
 
-
-            
-
-            //Camera
+            // Camera
             view = Matrix4.CreateTranslation(1.0f, 0.0f, 3.0f);
-            //projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45f), sizeX / sizeY, 0.1f, 100.0f);
+            //projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45f), sizeX / (float)sizeY, 0.1f, 100.0f);
             projection = Matrix4.CreateOrthographic(800, 600, 0.1f, 100.0f);
 
             //Diffuse and specular map
@@ -125,16 +120,15 @@ namespace MarioUAS
             //}
             //Console.WriteLine("================================================");
 
-
-
             foreach (var meshobj in child)
             {
                 meshobj.setupObject(sizeX, sizeY);
             }
         }
+
         public void render(Camera _camera, List<Light> lights)
         {
-            //render itu akan selalu terpanggil setiap frame
+            // render itu akan selalu terpanggil setiap frame
             GL.BindVertexArray(_vao);
             if(material != null)
             {
@@ -157,7 +151,8 @@ namespace MarioUAS
             _shader.SetMatrix4("view", _camera.GetViewMatrix());
             _shader.SetMatrix4("projection", _camera.GetProjectionMatrix());
             _shader.SetVector3("viewPos", _camera.Position);
-            ////material settings
+            
+            // material settings
             if(material != null)
             {
                 _shader.SetInt("material.diffuse_sampler", 0);
@@ -177,11 +172,10 @@ namespace MarioUAS
                 _shader.SetFloat("material.shininess", 128.0f);
             }
 
-            //Multiple Lights 
+            // Multiple Lights 
             for(int i = 0; i < lights.Count; i++)
             {
                 PointLight pointLight = (PointLight)lights[i];
-
                 
                 //Process Lighting Shader
                 _shader.SetVector3("lights[" + i + "].position", pointLight.Position);
@@ -192,21 +186,22 @@ namespace MarioUAS
                 _shader.SetFloat("lights[" + i + "].linear", pointLight.Linear);
                 _shader.SetFloat("lights[" + i + "].constant", pointLight.Constant);
                 _shader.SetFloat("lights[" + i + "].quadratic", pointLight.Quadratic);
+
                 //Use F1 key to toggle, default phong
                 _shader.SetBool("blinn", blinn);
                 _shader.SetBool("gamma", gamma);
-
                 
             }
 
             GL.DrawArrays(PrimitiveType.Triangles, 0, vertices.Count);
 
-            //ada disini
+            // ada disini
             foreach (var meshobj in child)
             {
                 meshobj.render(_camera, lights);
             }
         }
+
         public void calculateDepthRender(Camera _camera, Light light, int i)
         {
             GL.BindVertexArray(_vao);
@@ -223,9 +218,10 @@ namespace MarioUAS
                 meshobj.calculateDepthRender(_camera, light, i);
             }
         }
+
         public void calculateTextureRender(Camera _camera, Light light, int i)
         {
-            //render itu akan selalu terpanggil setiap frame
+            // render itu akan selalu terpanggil setiap frame
             GL.BindVertexArray(_vao);
             if (material != null)
             {
@@ -233,12 +229,12 @@ namespace MarioUAS
                 _specularMap.Use(TextureUnit.Texture1);
             }
 
-            //_shader.Use();
+            // _shader.Use();
             _shader.SetMatrix4("transform", transform);
             _shader.SetMatrix4("view", _camera.GetViewMatrix());
             _shader.SetMatrix4("projection", _camera.GetProjectionMatrix());
             _shader.SetVector3("viewPos", _camera.Position);
-            ////material settings
+            // material settings
             if (material != null)
             {
                 _shader.SetInt("material.diffuse_sampler", 0);
@@ -301,29 +297,29 @@ namespace MarioUAS
                 meshobj.calculateTextureRender(_camera, light, i);
             }
         }
-        
-        
        
-        //TRANSFORMASI
+        // TRANSFORMASI
         public Matrix4 getTransform()
         {
             return transform;
         }
+
         public void rotate(float angleX, float angleY, float angleZ)
         {
-            //rotate parentnya
-            //sumbu X
+            // rotate parentnya
+            // sumbu X
             transform = transform * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(angleX));
-            //sumbu Y
+            // sumbu Y
             transform = transform * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(angleY));
-            //sumbu Z
+            // sumbu Z
             transform = transform * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(angleZ));
-            //rotate childnya
+            // rotate childnya
             foreach (var meshobj in child)
             {
                 meshobj.rotate(angleX, angleY, angleZ);
             }
         }
+
         public void scale(float scale)
         {
             transform = transform * Matrix4.CreateScale(scale);
@@ -332,6 +328,7 @@ namespace MarioUAS
                 meshobj.scale(scale);
             }
         }
+
         public void translate(Vector3 translation)
         {
             transform = transform * Matrix4.CreateTranslation(translation);
@@ -341,55 +338,67 @@ namespace MarioUAS
             }
         }
 
-        //SETTER GETTER
+        // SETTER GETTER
         public List<Vector3> getVertices()
         {
             return vertices;
         }
+
         public void setVertices(List<Vector3> vertices)
         {
             this.vertices = vertices;
         }
+
         public List<Vector3> getNormals()
         {
             return normals;
         }
+
         public void setNormals(List<Vector3> normals)
         {
             this.normals = normals;
         }
+
         public List<Vector3> getTextureVertices()
         {
             return textureVertices;
         }
+
         public void setTextureVertices(List<Vector3> textureVertices)
         {
             this.textureVertices = textureVertices;
         }
+
         public void setMaterial(Material material)
         {
             this.material = material;
         }
+
         public Material getMaterial()
         {
             return material;
         }
+
         public void setName(string name)
         {
             this.name = name;
         }
+
         public string getName()
         {
             return name;
         }
+
         public void AddVertices(Vector3 vec)
         {
             vertices.Add(vec);
         }
+
         public void AddTextureVertices(Vector3 vec)
         {
             textureVertices.Add(vec);
         }
+
         public void AddNormals(Vector3 vec)
         {
             normals.Add(vec);
@@ -409,6 +418,7 @@ namespace MarioUAS
         {
             this._shader = shader;
         }
+        
         public Shader getShader()
         {
             return _shader;
@@ -418,6 +428,7 @@ namespace MarioUAS
         {
             this._depthShader = shader;
         }
+        
         public Shader getDepthShader()
         {
             return _depthShader;
@@ -426,7 +437,7 @@ namespace MarioUAS
         public void setDiffuseMap(Texture tex)
         {
             _diffuseMap = tex;
-            //Give all the diffuse map
+            // Give all the diffuse map
             foreach (var meshobj in child)
             {
                 meshobj.setDiffuseMap(tex);
@@ -436,7 +447,7 @@ namespace MarioUAS
         public void setDiffuseMap(string filepath)
         {
             _diffuseMap = Texture.LoadFromFile(filepath);
-            //Give all the specular map
+            // Give all the specular map
             foreach (var meshobj in child)
             {
                 meshobj.setDiffuseMap(filepath);
@@ -446,7 +457,7 @@ namespace MarioUAS
         public void setSpecularMap(string filepath)
         {
             _specularMap = Texture.LoadFromFile(filepath);
-            //Give all the specular map
+            // Give all the specular map
             foreach (var meshobj in child)
             {
                 meshobj.setSpecularMap(filepath);
@@ -462,6 +473,7 @@ namespace MarioUAS
         {
             return blinn;
         }
+        
         public void setGamma(bool b)
         {
             gamma = b;
