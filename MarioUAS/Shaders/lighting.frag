@@ -39,6 +39,7 @@ struct SpotLight{
     float linear;
     float quadratic;
 };
+uniform SpotLight spotLight;
 
 // We create the light and the material struct as uniforms.
 #define NR_POINT_LIGHTS 4
@@ -147,6 +148,7 @@ void main()
     {
         result += CalcPointLight(lights[i], norm, FragPos, viewDir, material);
     }
+    result += CalcSpotLight(spotLight, norm, FragPos, viewDir, material);
 
     if(gamma)
     {
