@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using LearnOpenTK.Common;
@@ -25,12 +25,19 @@ namespace MarioUAS
 
         Dictionary<string, List<Material>> materials_dict = new Dictionary<string, List<Material>>();
 
+        List<Mesh> object3d = new List<Mesh>();
+
         private Camera _camera;
         private Vector3 _objectPos;
 
         private Vector2 _lastMousePosition;
         private bool _firstMove;
         private bool postprocessing = false;
+
+        private bool dark = false;
+        private Vector3 specularLight = new Vector3(1.0f, 1.0f, 1.0f);
+        private Vector3 lightColor = new Vector3(0.05f, 0.05f, 0.05f);
+        private Vector3 spotlightColor = new Vector3(0.0f, 0.0f, 0.0f);
 
         // Light
         List<Light> lights = new List<Light>();
@@ -222,30 +229,34 @@ namespace MarioUAS
                 new Vector3(1f, 1f, 1f), new Vector3(0.5f, 0.5f, 0.5f), new Vector3(-0.2f, -1.0f, -0.3f)));
             lights.Add(new PointLight(new Vector3(0.0f, 0.0f, 0.0f), new Vector3(0.01f, 0.01f, 0.01f),
                 new Vector3(1.0f, 0.7f, 0.4f), new Vector3(0.0f, 0.0f, 0.0f), 0.5f, 0.5f, 1.0f));
-           
 
             // Initialize Mesh here
             mesh0 = LoadObjFile("../../../Resources/Mario.obj");
             mesh0.setupObject(1.0f, 1.0f);
             mesh0.translate(new Vector3(0f, -0.2f, -0.01f));
+            object3d.Add(mesh0);
 
             mesh1 = LoadObjFile("../../../Resources/Peach.obj");
             mesh1.setupObject(1.0f, 1.0f);
             mesh1.translate(new Vector3(0f, -0.2f, 0f));
+            object3d.Add(mesh1);
 
             mesh2 = LoadObjFile("../../../Resources/castle.obj");
             mesh2.setupObject(1.0f, 1.0f);
             mesh2.translate(new Vector3(0f, -0.2f, 0f));
+            object3d.Add(mesh2);
 
             mesh3 = LoadObjFile("../../../Resources/goomba.obj");
             mesh3.setupObject(1.0f, 1.0f);
             mesh3.translate(new Vector3(-0.27f, 0.01f, 0.1f));
             mesh3.scale(2f);
+            object3d.Add(mesh3);
 
             mesh4 = LoadObjFile("../../../Resources/campfire.obj");
             mesh4.setupObject(1.0f, 1.0f);
             mesh4.translate(new Vector3(0.0f, -0.05f, 0f));
             mesh4.scale(3f);
+            object3d.Add(mesh4);
 
             mesh5 = LoadObjFile("../../../Resources/uastoad.obj");
             mesh5.setupObject(1.0f, 1.0f);
@@ -253,6 +264,7 @@ namespace MarioUAS
             mesh5.rotate(0f, 180f, 0f);
             mesh5.translate(new Vector3(-0.23f, -0.177f, 1.5f));
             _objectPos = mesh5.getTransform().ExtractTranslation();
+            object3d.Add(mesh5);
 
             var _cameraPosInit = new Vector3(0, 0.5f, 3f);
             _camera = new Camera(_cameraPosInit, Size.X / (float)Size.Y);
@@ -266,11 +278,25 @@ namespace MarioUAS
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
             if (GLFW.GetTime() > 0.02)
             {
-                LampRevolution();
                 GLFW.SetTime(0.0);
             }
+
+            // Set Spotlight
+            mesh0.setSpotLight(_camera.Position, _camera.Front, lightColor, spotlightColor, specularLight,
+                    1.0f, 0.09f, 0.032f, MathF.Cos(MathHelper.DegreesToRadians(12.5f)), MathF.Cos(MathHelper.DegreesToRadians(12.5f)));
+            mesh1.setSpotLight(_camera.Position, _camera.Front, lightColor, spotlightColor, specularLight,
+                    1.0f, 0.09f, 0.032f, MathF.Cos(MathHelper.DegreesToRadians(12.5f)), MathF.Cos(MathHelper.DegreesToRadians(12.5f)));
+            mesh2.setSpotLight(_camera.Position, _camera.Front, lightColor, spotlightColor, specularLight,
+                    1.0f, 0.09f, 0.032f, MathF.Cos(MathHelper.DegreesToRadians(12.5f)), MathF.Cos(MathHelper.DegreesToRadians(12.5f)));
+            mesh3.setSpotLight(_camera.Position, _camera.Front, lightColor, spotlightColor, specularLight,
+                    1.0f, 0.09f, 0.032f, MathF.Cos(MathHelper.DegreesToRadians(12.5f)), MathF.Cos(MathHelper.DegreesToRadians(12.5f)));
+            mesh4.setSpotLight(_camera.Position, _camera.Front, lightColor, spotlightColor, specularLight,
+                    1.0f, 0.09f, 0.032f, MathF.Cos(MathHelper.DegreesToRadians(12.5f)), MathF.Cos(MathHelper.DegreesToRadians(12.5f)));
+            mesh5.setSpotLight(_camera.Position, _camera.Front, lightColor, spotlightColor, specularLight,
+                    1.0f, 0.09f, 0.032f, MathF.Cos(MathHelper.DegreesToRadians(12.5f)), MathF.Cos(MathHelper.DegreesToRadians(25.5f)));
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             if (postprocessing)
@@ -385,6 +411,23 @@ namespace MarioUAS
 
             bool hit = false;
 
+            if (KeyboardState.IsKeyReleased(Keys.F))
+            {
+                if (dark)
+                {
+                    dark = false;
+                    specularLight = new Vector3(1.0f, 1.0f, 1.0f);
+                    lightColor = new Vector3(0.05f, 0.05f, 0.05f);
+                    spotlightColor = new Vector3(0.0f, 0.0f, 0.0f);
+                } else
+                {
+                    dark = true;
+                    specularLight = new Vector3(0.0f, 0.0f, 0.0f);
+                    lightColor = new Vector3(0.0f, 0.0f, 0.0f);
+                    spotlightColor = new Vector3(1.0f, 1.0f, 1.0f);
+                }
+            }
+
             // Escape keyboard
             if (KeyboardState.IsKeyDown(Keys.Escape))
             {
@@ -402,7 +445,6 @@ namespace MarioUAS
             {
                 _camera.Fov += 0.5f;
             }
-
 
             if (KeyboardState.IsKeyDown(Keys.W))
             {
@@ -455,9 +497,7 @@ namespace MarioUAS
                 if (!hit)
                 {
                     _camera.Position += _camera.Front * cameraSpeed * (float)args.Time;
-
                 }
-
             }
             if (KeyboardState.IsKeyDown(Keys.S))
             {
@@ -487,7 +527,7 @@ namespace MarioUAS
                 _camera.Position -= _camera.Up * cameraSpeed * (float)args.Time;
             }
 
-            const float _rotationSpeed = 0.1f;
+            const float _rotationSpeed = 0.5f;
 
             // K (atas -> Rotasi sumbu x)
             if (KeyboardState.IsKeyDown(Keys.K))
@@ -853,6 +893,7 @@ namespace MarioUAS
             }
             return mesh;
         }
+        
         public List<Material> LoadMtlFile(string path)
         {
             Console.WriteLine("Load MTL file");
@@ -1032,17 +1073,6 @@ namespace MarioUAS
                 GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
                 GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
             }
-        }
-
-        //Animation
-        public void LampRevolution()
-        {
-            //lights[0].Position = lamp0.getTransform().ExtractTranslation();
-            //lamp0.rotate(0f, 1.0f, 0.0f);
-            //lights[1].Position = lamp1.getTransform().ExtractTranslation();
-            //lamp1.rotate(0f, -1f, 0.0f);
-            ////lights[2].Position = lamp2.getTransform().ExtractTranslation();
-            ////lamp2.rotate(1f, 0f, 0f);
         }
     }
 }
