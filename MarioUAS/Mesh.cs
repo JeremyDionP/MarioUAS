@@ -1,4 +1,4 @@
-﻿using LearnOpenTK.Common;
+using LearnOpenTK.Common;
 using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
@@ -108,18 +108,6 @@ namespace MarioUAS
                 _specularMap = material.Map_Ka;
             }
 
-            //Materials
-            //Console.WriteLine("================================================");
-            //Console.WriteLine("Object Name: " + name);
-            //Console.WriteLine("Vertices: " + vertices.Count);
-            //Console.WriteLine("Normals: " + normals.Count);
-            //Console.WriteLine("TextureVertices: " + textureVertices.Count);
-            //if (material != null)
-            //{
-            //    material.DisplayAttribute();
-            //}
-            //Console.WriteLine("================================================");
-
             foreach (var meshobj in child)
             {
                 meshobj.setupObject(sizeX, sizeY);
@@ -135,16 +123,6 @@ namespace MarioUAS
                 _diffuseMap.Use(TextureUnit.Texture0);
                 _specularMap.Use(TextureUnit.Texture1);
             }
-
-            //_depthShader.Use();
-            //Process Depth Shader
-            //float near_plane = 1.0f, far_plane = 7.5f;
-            //Matrix4 lightProjection, lightView;
-            //Matrix4.CreateOrthographic(-10.0f, 10.0f, near_plane, far_plane, out lightProjection);
-            //lightView = Matrix4.LookAt(pointLight.Position, transform.ExtractTranslation(), new Vector3(0.0f, 1.0f, 0.0f));
-
-            //Matrix4 lightSpaceMatrix = lightProjection * lightView;
-            //_depthShader.SetMatrix4("lightSpaceMatrix", lightSpaceMatrix);
 
             _shader.Use();
             _shader.SetMatrix4("transform", transform);
@@ -284,11 +262,6 @@ namespace MarioUAS
             _shader.SetBool("blinn", blinn);
             _shader.SetBool("gamma", gamma);
 
-
-
-
-
-
             GL.DrawArrays(PrimitiveType.Triangles, 0, vertices.Count);
 
             //ada disini
@@ -297,7 +270,22 @@ namespace MarioUAS
                 meshobj.calculateTextureRender(_camera, light, i);
             }
         }
-       
+
+        public void setSpotLight(Vector3 position, Vector3 direction, Vector3 ambient, Vector3 diffuse, Vector3 specular, float constant, float linear, float quadratic, float cutOff, float outerCutOff)
+        {
+            _shader.SetVector3("spotLight.position", position);
+            _shader.SetVector3("spotLight.direction", direction);
+            _shader.SetVector3("spotLight.ambient", ambient);
+            _shader.SetVector3("spotLight.diffuse", diffuse);
+
+            _shader.SetVector3("spotLight.specular", specular);
+            _shader.SetFloat("spotLight.constant", constant);
+            _shader.SetFloat("spotLight.linear", linear);
+            _shader.SetFloat("spotLight.quadratic", quadratic);
+            _shader.SetFloat("spotLight.cutOff", cutOff);  // menentukan lingkaran kecil
+            _shader.SetFloat("spotLight.outerCutOff", outerCutOff);  // menentukan lingkaran besar
+        }
+
         // TRANSFORMASI
         public Matrix4 getTransform()
         {
