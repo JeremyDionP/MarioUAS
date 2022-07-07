@@ -6,6 +6,10 @@ Proyek Ujian Akhir Semester (UAS) mata kuliah Grafika Komputer (Grafkom) semeste
 - Justin A. H. Rampengan - C14200148
 - Jeremy Dion P. - C14200206
 
+**[File Laporan](https://drive.google.com/file/d/1S0gmzLfAykMmFfgfvi2XBHarMqYRq7g0/view?usp=sharing)**
+<br>
+**[Video Demonstrasi](https://drive.google.com/file/d/18dNr1QNR_Q_g3O4CyahxY-gquD4rF6hA/view?usp=sharing)**
+
 ## Preview : 
 <img width="450" alt="preview_1" src="https://user-images.githubusercontent.com/71552391/177783106-7385b185-8b3c-47fb-ac6a-132053acaf30.jpeg">
 <img width="450" alt="preview_2" src="https://user-images.githubusercontent.com/71552391/177783576-a2b62a99-ba9d-45e6-abcd-e141d41a21c7.jpeg">
