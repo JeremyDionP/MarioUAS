@@ -11,3 +11,4 @@ Proyek Ujian Akhir Semester (UAS) mata kuliah Grafika Komputer (Grafkom) semeste
 <img width="450" alt="preview_2" src="https://user-images.githubusercontent.com/71552391/177783576-a2b62a99-ba9d-45e6-abcd-e141d41a21c7.jpeg">
 <img width="450" alt="preview_3" src="https://user-images.githubusercontent.com/71552391/177783600-e13a4e18-8c52-4db9-aeff-ed29ffc85c41.jpeg">
 <img width="450" alt="preview_4" src="https://user-images.githubusercontent.com/71552391/177783613-68f1e309-99e1-40b8-872e-aec40786d7de.jpeg">
+<img width="450" alt="preview_5" src="https://user-images.githubusercontent.com/71552391/177802764-492718cb-63dc-4bea-9dca-3d03476f1255.jpeg">
